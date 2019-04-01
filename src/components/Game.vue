@@ -1,25 +1,26 @@
 <template>
 	<div class="container">
-		<div class="row">
-			<h1 class="column column-offset-25">Game Of Life Online</h1>
-		</div>
-		<div class="row" style="margin-top: 10px;">
-			<table class="column column-offset-25" v-if="worldExist" cellspacing="0">
+		<div style="margin-top: 10px;">
+			<table align="center" v-if="worldExist" cellspacing="0">
 				<thead>
 				</thead>
 				<tbody>
 					<tr v-for="h in worldSize" :key="h.id">
-							<td v-for="w in worldSize" :key="w.id" :style="getCellStyle(h-1, w-1)" @click="setWorldCell(h-1, w-1)"/>
+							<td v-for="w in worldSize" :key="w.id" :style="getCellStyle(h-1, w-1)" @click="setWorldCell(h-1, w-1, myColor)"/>
 					</tr>
 				</tbody>
 			</table>
 			<p v-else>Can't retrieve data ...</p>
 			</div>
 		<div class="row" style="margin-top: 20px;">
+			<button class="button-red column column-10 column-offset-25" @click="setMyColor(1)">Red</button>
+			<button class="button-green column column-10 column-offset-10" @click="setMyColor(2)">Green</button>
+			<button class="button-blue column column-10 column-offset-10" @click="setMyColor(3)">Blue</button>
+		</div>
+		<div class="row" style="margin-top: 20px;">
 			<button class="column column-10 column-offset-25" @click="randomize()">Randomize</button>
 			<button class="column column-10 column-offset-10" @click="setPlaying()">Play/Pause</button>
 			<button class="column column-10 column-offset-10" @click="cleanWorld()">Clean</button>
-
 		</div>
 		<div class="row" style="margin-top: 20px;">
 			<input class="column column-10 column-offset-25" type="number" placeholder="World Size" v-model.number="worldSize"  @change="setWorldSize(worldSize)">
@@ -31,20 +32,19 @@
 
 <script>
 import Vue from 'vue'
-import ControlPanel from './ControlPanel'
 
 import { Kuzzle, WebSocket } from 'kuzzle-sdk';
 
 export default {
 	components: {
-		Vue,
-		ControlPanel
+		Vue
 	},
 	data:() => {
 		return {
 			worldSize: 50,
 			cellSize: 10,
 			coloredCell: true,
+			myColor: 1,
 			gen: 0,
 			score: 0,
 			world: null,
@@ -53,9 +53,6 @@ export default {
 	},
 	created: function () {
 		this.init();
-		this.$timer = setInterval(() => {
-			this.update()
-		}, 200);
 	},
 	mounted: function () {
 	},
@@ -69,15 +66,18 @@ export default {
 			let color = '#000';
 			if (this.world[h][w]['alive']) {
 				switch(this.world[h][w]['color']) {
-					case 0: color = '#C4BBAF'; break;
-					case 1: color = '#F93943'; break;
+					case 0: color = '#c4bbaf'; break;
+					case 1: color = '#f93943'; break;
 					case 2: color = '#248232'; break;
-					case 3: color = '#57B8FF'; break;
+					case 3: color = '#57b8ff'; break;
 				}
 				if (!this.coloredCell) color = '#fff';
 			}
 			let size = '; width : ' + this.cellSize + 'px; ' + 'height: ' + this.cellSize + 'px;';
 			return 'background-color: ' + color + size;
+		},
+		setMyColor(color) {
+			this.myColor = color;
 		},
 		update() {
 			if(this.play) {
@@ -105,7 +105,7 @@ export default {
 					const callback = (notification) => {
 						this.world = notification.result._source;
 					};
-					
+
 					//World Sub
 					try {
 						await this.$kuzzle.realtime.subscribe('gameoflife', 'worlds', {}, callback, {subscribeToSelf: false});
@@ -119,17 +119,7 @@ export default {
 					//this.$kuzzle.disconnect();
 				}
 			};
-
 			connect();
-		},
-
-		async evolveWorld() {
-			const query = {
-         controller: 'kuzzle-core-plugin-gameoflife/worldController',
-				 action: 'updateWorld'
-			 };
-
-			this.request(query);
 		},
 
 		async request(query) {
@@ -141,12 +131,22 @@ export default {
        }
 		},
 
-		async setWorldCell(y, x) {
+		async evolveWorld() {
+			const query = {
+         controller: 'kuzzle-core-plugin-gameoflife/worldController',
+				 action: 'updateWorld'
+			 };
+
+			this.request(query);
+		},
+
+		async setWorldCell(y, x, color) {
 			const query = {
          controller: 'kuzzle-core-plugin-gameoflife/worldController',
 				 action: 'setWorldCell',
 				 x: x,
-				 y: y
+				 y: y,
+				 color: color
 			 };
 
 			 this.request(query);
@@ -187,12 +187,7 @@ export default {
 			 };
 
 			 this.request(query);
-		},
-
-		destroyed: function () {
-			clearInterval(this.$timer)
-		}	
-
+		}
 	}
 }
 </script>

@@ -43,8 +43,8 @@
  input[type='button'],
  input[type='reset'],
  input[type='submit'] {
-   background-color: #9b4dca;
-   border: 0.1rem solid #9b4dca;
+   background-color: #000;
+   border: 0.1rem solid #fff;
    border-radius: .4rem;
    color: #fff;
    cursor: pointer;
@@ -615,4 +615,21 @@
  .float-right {
    float: right;
  }
- 
+
+ /* Extending The Inheritances */
+
+/* Custom color */
+.button-red {
+  background-color: #f93943;
+  border-color: #f93943;
+}
+
+.button-green {
+  background-color: #248232;
+  border-color: #248232;
+}
+
+.button-blue {
+  background-color: #57B8ff;
+  border-color: #57B8ff;
+}
