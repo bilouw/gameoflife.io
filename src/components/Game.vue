@@ -101,13 +101,11 @@ export default {
 					await this.$kuzzle.connect();
 					console.log('Connected to Kuzzle ...');
 
-					//Get the world
-					this.getWorld();
-
 					//Sub Callback
-					const callback = (error, notification) => {
-						this.getWorld();
+					const callback = (notification) => {
+						this.world = notification.result._source;
 					};
+					
 					//World Sub
 					try {
 						await this.$kuzzle.realtime.subscribe('gameoflife', 'worlds', {}, callback, {subscribeToSelf: false});
@@ -123,10 +121,6 @@ export default {
 			};
 
 			connect();
-		},
-		async getWorld() {
-			const response = await this.$kuzzle.document.get('gameoflife', 'worlds', 'world1');
-			this.world = response._source;
 		},
 
 		async evolveWorld() {
