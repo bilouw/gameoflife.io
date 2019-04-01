@@ -14,8 +14,7 @@ to retrieve the world data.
 ### DEV mode:
 From a terminal :
 
-* `mkdir gameoflife`
-* `cd gameoflife`
 * `git clone https://github.com/bilouw/gameoflife.io.git`
+* `cd gameoflife.io`
 * `npm install`
 * `npm run dev`
